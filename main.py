@@ -1,0 +1,86 @@
+from web3 import Web3
+import random
+import requests
+from eth_account import Account
+
+def proofTrans(tx,address):
+    headers = {
+        'accept': 'application/json, text/plain, */*',
+        'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,uk-UA;q=0.6,uk;q=0.5',
+        'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODMwOTgwNDgsImlhdCI6MTc1MTU2MjA0OCwic3ViIjoiMHg5N0ZFNWIxZjVBODRFNjQxZDBkNDhGQjA5Yzk4NTE0Q2JkM0JGMDNhIn0.4YCAxjw4Wf9IjO7-PfGwXg4Bp72oiWp-Fjwb32FEbeI',
+        # 'content-length': '0',
+        'origin': 'https://testnet.pharosnetwork.xyz',
+        'priority': 'u=1, i',
+        'referer': 'https://testnet.pharosnetwork.xyz/',
+        'sec-ch-ua': '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    }
+
+    params = {
+        'address': address,
+        'task_id': '103',
+        'tx_hash': tx,
+    }
+
+    response = requests.post('https://api.pharosnetwork.xyz/task/verify', params=params, headers=headers)
+    return (f"Transaction {tx} verified( Status: {response.status_code} Response: {response.json()["msg"]})")
+
+
+PRIVATE_KEY = input("Enter private key: ")
+RPC_URL = "https://testnet.dplabs-internal.com"
+# RPC_URL = "https://api.zan.top/node/v1/pharos/testnet/d747dc2df52744caa17678a3e008b50f"
+
+w3 = Web3(Web3.HTTPProvider(RPC_URL))
+
+
+if not w3.is_connected():
+    raise Exception("Unable to connect to RPC")
+
+sender_address = w3.eth.account.from_key(PRIVATE_KEY).address
+
+count = int(input("Enter number of transaction, or 0 - random(2,5) transactions: "))
+count = random.randint(2,5) if count == 0 else count
+valueToSend = float(input("Enter value to send, or 0 - random(0.00001,0.001) transactions: "))
+receiver_address = str(input("Enter receiver address, or 0 - to send random addresses: "))
+
+print()
+for i in  range(count):
+    receiver_address = w3.to_checksum_address(sender_address) if receiver_address != "0" else Account.create().address
+    valueToSend = random.randint(1,100) / 100000 if int(valueToSend) == 0 else valueToSend
+    nonce = w3.eth.get_transaction_count(sender_address)
+    gas_price = w3.eth.gas_price
+    value = w3.to_wei(valueToSend, 'ether')  
+    
+    tx = {
+        'nonce': nonce,
+        'to': receiver_address,
+        'value': value,
+        'gas': 21000,
+        'gasPrice': gas_price,
+        'chainId': w3.eth.chain_id,
+    }
+    
+    signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    trans_hash = w3.to_hex(tx_hash)
+    print(f"Transaction {i+1}:")
+    print(f"\t Transaction {i+1} send: {trans_hash}. Value - {valueToSend}")
+
+    try:
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash,timeout=30)
+    except:
+         print(f"\t Transaction {i+1} failed: {trans_hash} not added to blochain")
+         print("\n")
+         continue
+    else:
+        print(f"\t Transaction {i+1} confirmed: {trans_hash} add to block {receipt['blockNumber']}")
+        print(f"\t {proofTrans(trans_hash,sender_address)}")
+        print("\n")
+
+
+input("Enter to exit programm")

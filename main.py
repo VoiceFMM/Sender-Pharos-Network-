@@ -47,7 +47,7 @@ receiver_address = str(input("Enter receiver address, or 0 - to send random addr
 
 print()
 for i in  range(count):
-    receiver_address = w3.to_checksum_address(sender_address) if receiver_address != "0" else Account.create().address
+    receiverr_address = w3.to_checksum_address(sender_address) if receiver_address != "0" else Account.create().address
     valueToSend = random.randint(1,100) / 100000 if int(valueToSend) == 0 else valueToSend
     nonce = w3.eth.get_transaction_count(sender_address)
     gas_price = w3.eth.gas_price
@@ -55,7 +55,7 @@ for i in  range(count):
     
     tx = {
         'nonce': nonce,
-        'to': receiver_address,
+        'to': receiverr_address,
         'value': value,
         'gas': 21000,
         'gasPrice': gas_price,
@@ -65,7 +65,7 @@ for i in  range(count):
     signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     trans_hash = w3.to_hex(tx_hash)
-    print(f"Transaction {i+1}:")
+    print(f"Transaction {i+1}: to address - {receiverr_address}")
     print(f"\t Transaction {i+1} send: {trans_hash}. Value - {valueToSend}")
 
     try:

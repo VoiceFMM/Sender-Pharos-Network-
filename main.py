@@ -2,6 +2,7 @@ from web3 import Web3
 import random
 import requests
 from eth_account import Account
+from api import PRIVATE_KEY, RPC_URL
 
 def proofTrans(tx,address):
     headers = {
@@ -30,10 +31,6 @@ def proofTrans(tx,address):
     response = requests.post('https://api.pharosnetwork.xyz/task/verify', params=params, headers=headers)
     return (f"Transaction {tx} verified( Status: {response.status_code} Response: {response.json()["msg"]})")
 
-
-PRIVATE_KEY = input("Enter private key: ")
-RPC_URL = "https://testnet.dplabs-internal.com"
-# RPC_URL = "https://api.zan.top/node/v1/pharos/testnet/d747dc2df52744caa17678a3e008b50f"
 
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
@@ -81,6 +78,3 @@ for i in  range(count):
         print(f"\t Transaction {i+1} confirmed: {trans_hash} add to block {receipt['blockNumber']}")
         print(f"\t {proofTrans(trans_hash,sender_address)}")
         print("\n")
-
-
-input("Enter to exit programm")

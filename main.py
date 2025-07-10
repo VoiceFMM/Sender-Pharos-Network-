@@ -8,27 +8,28 @@ def proofTrans(tx,address):
     headers = {
         'accept': 'application/json, text/plain, */*',
         'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,uk-UA;q=0.6,uk;q=0.5',
-        'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODMwOTgwNDgsImlhdCI6MTc1MTU2MjA0OCwic3ViIjoiMHg5N0ZFNWIxZjVBODRFNjQxZDBkNDhGQjA5Yzk4NTE0Q2JkM0JGMDNhIn0.4YCAxjw4Wf9IjO7-PfGwXg4Bp72oiWp-Fjwb32FEbeI',
-        # 'content-length': '0',
+        'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODMxNDk2OTQsImlhdCI6MTc1MTYxMzY5NCwic3ViIjoiMHg5N0ZFNWIxZjVBODRFNjQxZDBkNDhGQjA5Yzk4NTE0Q2JkM0JGMDNhIn0.pD6EvbX-InEgdy0dCAN2MxCaiGNCcsuIqE3S6y1MgPo',
+        'content-type': 'application/json',
         'origin': 'https://testnet.pharosnetwork.xyz',
         'priority': 'u=1, i',
         'referer': 'https://testnet.pharosnetwork.xyz/',
-        'sec-ch-ua': '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+        'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"Windows"',
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
     }
 
-    params = {
-        'address': address,
-        'task_id': '103',
+    json_data = {
+        'address': w3.to_checksum_address(address),
+        'task_id': 103,
         'tx_hash': tx,
     }
+    
 
-    response = requests.post('https://api.pharosnetwork.xyz/task/verify', params=params, headers=headers)
+    response = requests.post('https://api.pharosnetwork.xyz/task/verify', headers=headers, json=json_data)
     return (f"Transaction {tx} verified( Status: {response.status_code} Response: {response.json()["msg"]})")
 
 
